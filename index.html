@@ -300,9 +300,9 @@
 
         <div class="controls">
             <select id="monthSelector" class="month-selector">
-                <option value="december">December</option>
+                <option value="december" selected>December</option>
                 <option value="november">November</option>
-                <option value="october" selected>October</option>
+                <option value="october">October</option>
                 <option value="september">September</option>
                 <option value="august">August</option>
                 <option value="july">July</option>
@@ -693,7 +693,7 @@
             document.getElementById('analysisContent').innerHTML = generateAnalysis(data);
         }
 
-        updateMonth('october');
+        updateMonth('december');
 
         document.getElementById('monthSelector').addEventListener('change', function(e) {
             updateMonth(e.target.value);
@@ -701,3 +701,4 @@
     </script>
 </body>
 </html>
+
