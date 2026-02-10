@@ -210,16 +210,6 @@
             border-left: 5px solid;
         }
 
-        .increase {
-            background: linear-gradient(135deg, #d5f4e6, #c8f7c5);
-            border-left-color: #27ae60;
-        }
-
-        .decrease {
-            background: linear-gradient(135deg, #fadbd8, #f5b7b1);
-            border-left-color: #e74c3c;
-        }
-
         .analysis-item h4 {
             margin: 0 0 10px 0;
             font-size: 1.2em;
@@ -300,7 +290,8 @@
 
         <div class="controls">
             <select id="monthSelector" class="month-selector">
-                <option value="december" selected>December</option>
+                <option value="january" selected>January</option>
+                <option value="december">December</option>
                 <option value="november">November</option>
                 <option value="october">October</option>
                 <option value="september">September</option>
@@ -314,68 +305,82 @@
         </div>
 
         <div class="current-month">
-            <h2 id="currentMonthTitle">October Comparison</h2>
+            <h2 id="currentMonthTitle">December Comparison</h2>
         </div>
 
-        <!-- 2025 Section -->
         <div class="year-section">
-            <h3 class="year-title" id="year2025Title">October 2025</h3>
+            <h3 class="year-title" id="yearTopTitle">December 2025</h3>
 
             <div class="charts-grid">
                 <div class="chart-container">
                     <div class="chart-title">Count Distribution</div>
                     <div class="chart-wrapper">
-                        <canvas id="countChart2025"></canvas>
+                        <canvas id="countChartTop"></canvas>
                     </div>
                 </div>
 
                 <div class="chart-container">
                     <div class="chart-title">Weight Distribution</div>
                     <div class="chart-wrapper">
-                        <canvas id="weightChart2025"></canvas>
+                        <canvas id="weightChartTop"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="stats-container">
-                <div class="stats-grid" id="statsGrid2025"></div>
+                <div class="stats-grid" id="statsGridTop"></div>
             </div>
         </div>
 
-        <!-- 2024 Section -->
         <div class="year-section">
-            <h3 class="year-title" id="year2024Title">October 2024</h3>
+            <h3 class="year-title" id="yearBottomTitle">December 2024</h3>
 
             <div class="charts-grid">
                 <div class="chart-container">
                     <div class="chart-title">Count Distribution</div>
                     <div class="chart-wrapper">
-                        <canvas id="countChart2024"></canvas>
+                        <canvas id="countChartBottom"></canvas>
                     </div>
                 </div>
 
                 <div class="chart-container">
                     <div class="chart-title">Weight Distribution</div>
                     <div class="chart-wrapper">
-                        <canvas id="weightChart2024"></canvas>
+                        <canvas id="weightChartBottom"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="stats-container">
-                <div class="stats-grid" id="statsGrid2024"></div>
+                <div class="stats-grid" id="statsGridBottom"></div>
             </div>
         </div>
 
-        <!-- Analysis Section -->
         <div class="analysis-section">
-            <h3 class="analysis-title" id="analysisTitle">October Year-over-Year Analysis</h3>
+            <h3 class="analysis-title" id="analysisTitle">December Year-over-Year Analysis</h3>
             <div id="analysisContent"></div>
         </div>
     </div>
 
     <script>
         const monthData = {
+            january: {
+                name: 'January',
+                2026: {
+                    totalCount: 143,
+                    totalWeight: 2306273,
+                    bewerkingCount: 51,
+                    bewerkingWeight: 648550,
+                    colors: ['#3498db', '#e74c3c']
+                },
+                2025: {
+                    totalCount: 178,
+                    totalWeight: 2061159,
+                    bewerkingCount: 73,
+                    bewerkingWeight: 627398,
+                    colors: ['#27ae60', '#f39c12']
+                }
+            },
             december: {
                 name: 'December',
                 2025: {
@@ -541,9 +546,7 @@
                     position: 'bottom',
                     labels: {
                         padding: 20,
-                        font: {
-                            size: 12
-                        }
+                        font: { size: 12 }
                     }
                 },
                 tooltip: {
@@ -557,9 +560,8 @@
                             const canvasId = context.chart.canvas.id;
                             if (canvasId.includes('weight')) {
                                 return `${label}: ${value.toLocaleString()} kg (${percentage}%)`;
-                            } else {
-                                return `${label}: ${value.toLocaleString()} (${percentage}%)`;
                             }
+                            return `${label}: ${value.toLocaleString()} (${percentage}%)`;
                         }
                     }
                 }
@@ -572,13 +574,13 @@
                 charts[canvasId].destroy();
             }
 
-            const noBewerkingValue = isWeight ?
-                data.totalWeight - data.bewerkingWeight :
-                data.totalCount - data.bewerkingCount;
+            const noBewerkingValue = isWeight
+                ? (data.totalWeight - data.bewerkingWeight)
+                : (data.totalCount - data.bewerkingCount);
 
-            const chartData = isWeight ?
-                [data.bewerkingWeight, noBewerkingValue] :
-                [data.bewerkingCount, noBewerkingValue];
+            const chartData = isWeight
+                ? [data.bewerkingWeight, noBewerkingValue]
+                : [data.bewerkingCount, noBewerkingValue];
 
             charts[canvasId] = new Chart(ctx, {
                 type: 'pie',
@@ -633,40 +635,66 @@
             `;
         }
 
-        function generateAnalysis(monthData) {
-            const data2025 = monthData[2025];
-            const data2024 = monthData[2024];
+        function getYearKeysForMonth(monthObj) {
+            return Object.keys(monthObj)
+                .filter(k => /^\d{4}$/.test(k))
+                .map(k => parseInt(k, 10))
+                .sort((a, b) => b - a);
+        }
 
-            const totalOrdersChange = data2025.totalCount - data2024.totalCount;
-            const totalWeightChange = data2025.totalWeight - data2024.totalWeight;
-            const bewerkingOrdersChange = data2025.bewerkingCount - data2024.bewerkingCount;
-            const bewerkingWeightChange = data2025.bewerkingWeight - data2024.bewerkingWeight;
+        function generateAnalysis(monthObj, yearTop, yearBottom) {
+            const dataTop = monthObj[yearTop];
+            const dataBottom = monthObj[yearBottom];
 
-            const totalOrdersPercent = ((totalOrdersChange / data2024.totalCount) * 100).toFixed(1);
-            const totalWeightPercent = ((totalWeightChange / data2024.totalWeight) * 100).toFixed(1);
-            const bewerkingOrdersPercent = ((bewerkingOrdersChange / data2024.bewerkingCount) * 100).toFixed(1);
-            const bewerkingWeightPercent = ((bewerkingWeightChange / data2024.bewerkingWeight) * 100).toFixed(1);
+            const totalOrdersChange = dataTop.totalCount - dataBottom.totalCount;
+            const totalWeightChange = dataTop.totalWeight - dataBottom.totalWeight;
+            const bewerkingOrdersChange = dataTop.bewerkingCount - dataBottom.bewerkingCount;
+            const bewerkingWeightChange = dataTop.bewerkingWeight - dataBottom.bewerkingWeight;
+
+            const totalOrdersPercent = ((totalOrdersChange / dataBottom.totalCount) * 100).toFixed(1);
+            const totalWeightPercent = ((totalWeightChange / dataBottom.totalWeight) * 100).toFixed(1);
+            const bewerkingOrdersPercent = ((bewerkingOrdersChange / dataBottom.bewerkingCount) * 100).toFixed(1);
+            const bewerkingWeightPercent = ((bewerkingWeightChange / dataBottom.bewerkingWeight) * 100).toFixed(1);
 
             return `
                 <div class="analysis-grid">
-                    <div class="analysis-item ${totalOrdersChange >= 0 ? 'increase' : 'decrease'}">
-                        <h4 style="color: ${totalOrdersChange >= 0 ? '#27ae60' : '#e74c3c'};">
-                            📈 ${totalOrdersChange >= 0 ? 'INCREASES' : 'DECREASES'}
+                    <div class="analysis-item" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-left: 5px solid #6c757d;">
+                        <h4 style="color: #495057;">
+                            📊 CHANGE SUMMARY (${yearBottom} → ${yearTop})
                         </h4>
                         <ul>
-                            <li><strong>Total Orders:</strong> ${totalOrdersChange >= 0 ? '+' : ''}${totalOrdersChange} orders (${totalOrdersPercent >= 0 ? '+' : ''}${totalOrdersPercent}%)</li>
-                            <li><strong>Total Weight:</strong> ${totalWeightChange >= 0 ? '+' : ''}${totalWeightChange.toLocaleString()} kg (${totalWeightPercent >= 0 ? '+' : ''}${totalWeightPercent}%)</li>
-                            <li><strong>Orders with Bewerking:</strong> ${bewerkingOrdersChange >= 0 ? '+' : ''}${bewerkingOrdersChange} orders (${bewerkingOrdersPercent >= 0 ? '+' : ''}${bewerkingOrdersPercent}%)</li>
-                            <li><strong>Weight with Bewerking:</strong> ${bewerkingWeightChange >= 0 ? '+' : ''}${bewerkingWeightChange.toLocaleString()} kg (${bewerkingWeightPercent >= 0 ? '+' : ''}${bewerkingWeightPercent}%)</li>
+                            <li style="color: ${totalOrdersChange >= 0 ? '#27ae60' : '#e74c3c'};">
+                                <strong>Total Orders:</strong>
+                                ${totalOrdersChange >= 0 ? '+' : ''}${totalOrdersChange}
+                                orders (${totalOrdersPercent >= 0 ? '+' : ''}${totalOrdersPercent}%)
+                            </li>
+
+                            <li style="color: ${totalWeightChange >= 0 ? '#27ae60' : '#e74c3c'};">
+                                <strong>Total Weight:</strong>
+                                ${totalWeightChange >= 0 ? '+' : ''}${totalWeightChange.toLocaleString()}
+                                kg (${totalWeightPercent >= 0 ? '+' : ''}${totalWeightPercent}%)
+                            </li>
+
+                            <li style="color: ${bewerkingOrdersChange >= 0 ? '#27ae60' : '#e74c3c'};">
+                                <strong>Orders with Bewerking:</strong>
+                                ${bewerkingOrdersChange >= 0 ? '+' : ''}${bewerkingOrdersChange}
+                                orders (${bewerkingOrdersPercent >= 0 ? '+' : ''}${bewerkingOrdersPercent}%)
+                            </li>
+
+                            <li style="color: ${bewerkingWeightChange >= 0 ? '#27ae60' : '#e74c3c'};">
+                                <strong>Weight with Bewerking:</strong>
+                                ${bewerkingWeightChange >= 0 ? '+' : ''}${bewerkingWeightChange.toLocaleString()}
+                                kg (${bewerkingWeightPercent >= 0 ? '+' : ''}${bewerkingWeightPercent}%)
+                            </li>
                         </ul>
                     </div>
 
                     <div class="analysis-item" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-left: 5px solid #6c757d; padding: 25px; border-radius: 12px;">
                         <h4 style="color: #495057; margin: 0 0 15px 0; font-size: 1.3em;">💡 KEY INSIGHTS</h4>
                         <div style="color: #2c3e50; line-height: 1.6;">
-                            <p style="margin: 0 0 10px 0;">• <strong>Processing Activity:</strong> Orders requiring bewerking changed from ${data2024.bewerkingCount} to ${data2025.bewerkingCount} orders.</p>
-                            <p style="margin: 0 0 10px 0;">• <strong>Overall Volume:</strong> Total orders changed from ${data2024.totalCount} to ${data2025.totalCount} orders and from ${data2024.totalWeight.toLocaleString()} kg to ${data2025.totalWeight.toLocaleString()} kg.</p>
-                            <p style="margin: 0;">• <strong>Weight Distribution:</strong> Bewerking orders represented ${data2024.bewerkingWeight.toLocaleString()} kg in 2024 and ${data2025.bewerkingWeight.toLocaleString()} kg in 2025.</p>
+                            <p style="margin: 0 0 10px 0;">• <strong>Processing Activity:</strong> Orders requiring bewerking changed from ${dataBottom.bewerkingCount} to ${dataTop.bewerkingCount} orders.</p>
+                            <p style="margin: 0 0 10px 0;">• <strong>Overall Volume:</strong> Total orders changed from ${dataBottom.totalCount} to ${dataTop.totalCount} orders and from ${dataBottom.totalWeight.toLocaleString()} kg to ${dataTop.totalWeight.toLocaleString()} kg.</p>
+                            <p style="margin: 0;">• <strong>Weight Distribution:</strong> Bewerking orders represented ${dataBottom.bewerkingWeight.toLocaleString()} kg in ${yearBottom} and ${dataTop.bewerkingWeight.toLocaleString()} kg in ${yearTop}.</p>
                         </div>
                     </div>
                 </div>
@@ -677,23 +705,33 @@
             const data = monthData[monthKey];
             const monthName = data.name;
 
+            const yearKeys = getYearKeysForMonth(data);
+            const yearTop = yearKeys[0];
+            const yearBottom = yearKeys[1];
+
+            if (!yearTop || !yearBottom) {
+                document.getElementById('analysisContent').innerHTML =
+                    `<div style="padding: 10px; color: #c0392b;">Not enough year data for ${monthName}. Please provide 2 years.</div>`;
+                return;
+            }
+
             document.getElementById('currentMonthTitle').textContent = `${monthName} Comparison`;
-            document.getElementById('year2025Title').textContent = `${monthName} 2025`;
-            document.getElementById('year2024Title').textContent = `${monthName} 2024`;
+            document.getElementById('yearTopTitle').textContent = `${monthName} ${yearTop}`;
+            document.getElementById('yearBottomTitle').textContent = `${monthName} ${yearBottom}`;
             document.getElementById('analysisTitle').textContent = `${monthName} Year-over-Year Analysis`;
 
-            createChart('countChart2025', data[2025]);
-            createChart('weightChart2025', data[2025], true);
-            createChart('countChart2024', data[2024]);
-            createChart('weightChart2024', data[2024], true);
+            createChart('countChartTop', data[yearTop]);
+            createChart('weightChartTop', data[yearTop], true);
+            createChart('countChartBottom', data[yearBottom]);
+            createChart('weightChartBottom', data[yearBottom], true);
 
-            updateStats('statsGrid2025', data[2025]);
-            updateStats('statsGrid2024', data[2024]);
+            updateStats('statsGridTop', data[yearTop]);
+            updateStats('statsGridBottom', data[yearBottom]);
 
-            document.getElementById('analysisContent').innerHTML = generateAnalysis(data);
+            document.getElementById('analysisContent').innerHTML = generateAnalysis(data, yearTop, yearBottom);
         }
 
-        updateMonth('december');
+        updateMonth('january');
 
         document.getElementById('monthSelector').addEventListener('change', function(e) {
             updateMonth(e.target.value);
@@ -701,4 +739,3 @@
     </script>
 </body>
 </html>
-
