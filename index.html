@@ -8,734 +8,651 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
+            margin: 0; padding: 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
+            min-height: 100vh; color: #333;
         }
-
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
+            max-width: 1200px; margin: 0 auto;
+            background: rgba(255,255,255,0.95);
+            border-radius: 20px; padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #2c3e50; font-size: 2.5em; margin-bottom: 10px; font-weight: 300; }
+        .header p  { color: #7f8c8d; font-size: 1.2em; margin: 0; }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            font-weight: 300;
-        }
-
-        .header p {
-            color: #7f8c8d;
-            font-size: 1.2em;
-            margin: 0;
-        }
-
-        .controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .month-selector {
-            padding: 12px 20px;
-            border: 2px solid #3498db;
-            border-radius: 8px;
-            background: white;
-            font-size: 16px;
-            font-weight: 500;
-            color: #2c3e50;
-            cursor: pointer;
-            min-width: 150px;
-        }
-
-        .month-selector:focus {
-            outline: none;
-            box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
-        }
-
-        .print-button {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .print-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
-        }
-
-        .current-month {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .current-month h2 {
-            color: #2c3e50;
-            font-size: 2.2em;
-            margin: 0;
-            font-weight: 400;
-        }
-
-        .year-section {
-            margin-bottom: 50px;
-        }
-
-        .year-title {
-            text-align: center;
-            color: #2c3e50;
-            font-size: 2em;
-            margin-bottom: 30px;
-            font-weight: 400;
+        /* Tabs */
+        .tab-nav {
+            display: flex; justify-content: center;
+            margin-bottom: 35px;
             border-bottom: 3px solid #3498db;
-            padding-bottom: 10px;
         }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 30px;
+        .tab-btn {
+            padding: 12px 32px; border: none; background: transparent;
+            font-size: 15px; font-weight: 600; color: #7f8c8d; cursor: pointer;
+            border-bottom: 3px solid transparent; margin-bottom: -3px;
+            transition: all 0.2s ease; border-radius: 8px 8px 0 0;
         }
+        .tab-btn:hover  { color: #3498db; background: rgba(52,152,219,0.05); }
+        .tab-btn.active { color: #3498db; border-bottom: 3px solid #3498db; background: rgba(52,152,219,0.07); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
 
+        /* Controls */
+        .controls { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 40px; flex-wrap: wrap; }
+        .month-selector {
+            padding: 12px 20px; border: 2px solid #3498db; border-radius: 8px;
+            background: white; font-size: 16px; font-weight: 500; color: #2c3e50;
+            cursor: pointer; min-width: 150px;
+        }
+        .month-selector:focus { outline: none; box-shadow: 0 0 10px rgba(52,152,219,0.3); }
+        .print-button {
+            background: linear-gradient(135deg,#3498db,#2980b9); color: white; border: none;
+            padding: 12px 20px; border-radius: 8px; cursor: pointer; font-size: 14px;
+            font-weight: 500; box-shadow: 0 4px 15px rgba(52,152,219,0.3); transition: all 0.3s ease;
+        }
+        .print-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52,152,219,0.4); }
+
+        /* Monthly detail */
+        .current-month { text-align: center; margin-bottom: 30px; }
+        .current-month h2 { color: #2c3e50; font-size: 2.2em; margin: 0; font-weight: 400; }
+        .year-section { margin-bottom: 50px; }
+        .year-title {
+            text-align: center; color: #2c3e50; font-size: 2em; margin-bottom: 30px;
+            font-weight: 400; border-bottom: 3px solid #3498db; padding-bottom: 10px;
+        }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px; }
         .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            background: white; border-radius: 15px; padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-
-        .chart-container:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-        }
-
-        .chart-title {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #2c3e50;
-            font-size: 1.4em;
-            font-weight: 500;
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 300px;
-        }
-
+        .chart-container:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+        .chart-title { text-align: center; margin-bottom: 20px; color: #2c3e50; font-size: 1.4em; font-weight: 500; }
+        .chart-wrapper      { position: relative; height: 300px; }
+        .chart-wrapper-tall { position: relative; height: 340px; }
         .stats-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            background: white; border-radius: 15px; padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px;
         }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 20px; }
         .stat-item {
-            text-align: center;
-            padding: 15px;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            border-radius: 10px;
-            border-left: 4px solid #3498db;
+            text-align: center; padding: 15px;
+            background: linear-gradient(135deg,#f8f9fa,#e9ecef);
+            border-radius: 10px; border-left: 4px solid #3498db;
         }
-
-        .stat-value {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: #7f8c8d;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
+        .stat-value { font-size: 1.8em; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+        .stat-label { color: #7f8c8d; font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px; }
         .analysis-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            margin-top: 40px;
+            background: white; border-radius: 15px; padding: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 40px;
+        }
+        .analysis-title { text-align: center; color: #2c3e50; font-size: 1.8em; margin-bottom: 25px; font-weight: 400; }
+        .analysis-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 25px; }
+        .analysis-item { padding: 20px; border-radius: 12px; border-left: 5px solid; }
+        .analysis-item h4 { margin: 0 0 10px 0; font-size: 1.2em; }
+        .analysis-item ul { margin: 0; padding-left: 20px; color: #2c3e50; }
+
+        /* Overview */
+        .overview-section-title {
+            text-align: center; color: #2c3e50; font-size: 1.25em; font-weight: 600;
+            margin: 36px 0 20px 0; padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef; letter-spacing: 0.2px;
         }
 
-        .analysis-title {
-            text-align: center;
-            color: #2c3e50;
-            font-size: 1.8em;
-            margin-bottom: 25px;
-            font-weight: 400;
+        /* Year summary cards */
+        .year-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-bottom: 10px; }
+        .year-card { border-radius: 14px; padding: 22px 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+        .year-card-2024 { background: linear-gradient(135deg,#fff8ee,#fdebd0); border-top: 4px solid #f39c12; }
+        .year-card-2025 { background: linear-gradient(135deg,#eafaf1,#d5f5e3); border-top: 4px solid #27ae60; }
+        .year-card-2026 { background: linear-gradient(135deg,#eaf4fb,#d6eaf8); border-top: 4px solid #3498db; }
+        .year-card-header { font-size: 1.4em; font-weight: 700; color: #2c3e50; margin-bottom: 4px; }
+        .year-card-period { font-size: 0.8em; color: #7f8c8d; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .year-card-metric {
+            display: flex; justify-content: space-between; align-items: baseline;
+            padding: 6px 0; border-bottom: 1px solid rgba(0,0,0,0.06);
         }
+        .year-card-metric:last-child { border-bottom: none; }
+        .year-card-metric-label { font-size: 0.85em; color: #7f8c8d; }
+        .year-card-metric-value { font-size: 1.05em; font-weight: 700; color: #2c3e50; }
 
-        .analysis-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+        /* Simple breakdown tables */
+        .simple-tables-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 10px; }
+        .simple-table-wrap { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+        .simple-table-title { font-size: 1em; font-weight: 700; color: #2c3e50; margin-bottom: 14px; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .simple-table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+        .simple-table th {
+            padding: 8px 10px; text-align: center; font-weight: 700;
+            font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.4px;
+            border-bottom: 2px solid #e9ecef; color: #495057;
         }
-
-        .analysis-item {
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 5px solid;
-        }
-
-        .analysis-item h4 {
-            margin: 0 0 10px 0;
-            font-size: 1.2em;
-        }
-
-        .analysis-item ul {
-            margin: 0;
-            padding-left: 20px;
-            color: #2c3e50;
-        }
+        .simple-table th:first-child { text-align: left; }
+        .simple-table td { padding: 7px 10px; text-align: center; border-bottom: 1px solid #f1f3f4; color: #2c3e50; }
+        .simple-table td:first-child { text-align: left; font-weight: 600; color: #495057; }
+        .simple-table tr:hover td { background: #f8f9fa; }
+        .simple-table .col-2024 { color: #d68910; }
+        .simple-table .col-2025 { color: #c0392b; }
+        .simple-table .col-2026 { color: #1a6fa8; }
+        .simple-table .total-row td { font-weight: 700; background: linear-gradient(135deg,#f8f9fa,#e9ecef); border-top: 2px solid #dee2e6; }
+        .dash { color: #ccc; }
 
         @media print {
-            .print-button, .controls {
-                display: none;
-            }
-
-            body {
-                background: white;
-                margin: 0;
-                padding: 0;
-            }
-
-            .container {
-                background: white;
-                box-shadow: none;
-                margin: 0;
-                padding: 20px;
-                max-width: none;
-            }
-
-            .year-section {
-                page-break-inside: avoid;
-                margin-bottom: 30px;
-            }
-
-            .charts-grid {
-                gap: 20px;
-            }
-
-            .chart-container {
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                page-break-inside: avoid;
-            }
-
-            .stats-container {
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                page-break-inside: avoid;
-            }
+            .print-button, .tab-nav { display: none; }
+            body { background: white; margin: 0; padding: 0; }
+            .container { background: white; box-shadow: none; margin: 0; padding: 20px; max-width: none; }
+            .tab-panel { display: block !important; }
+            .year-section, .chart-container, .stats-container { page-break-inside: avoid; }
         }
-
-        @media (max-width: 768px) {
-            .charts-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .container {
-                padding: 20px;
-                margin: 10px;
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-
-            .controls {
-                flex-direction: column;
-            }
+        @media (max-width: 900px) {
+            .charts-grid, .simple-tables-grid, .year-cards { grid-template-columns: 1fr; gap: 20px; }
+            .container { padding: 15px; margin: 8px; }
+            .header h1 { font-size: 1.8em; }
+            .controls { flex-direction: column; }
+            .tab-btn { padding: 10px 16px; font-size: 13px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Monthly Data Analysis</h1>
-            <p>Year-over-Year Comparison of Orders with and without Bewerking</p>
-        </div>
+<div class="container">
+    <div class="header">
+        <h1>Monthly Data Analysis</h1>
+        <p>Year-over-Year Comparison of Orders with and without Bewerking</p>
+    </div>
 
+    <div class="tab-nav">
+        <button class="tab-btn active" id="tabBtnDetail"   onclick="switchTab('detail')">📅 Monthly Detail</button>
+        <button class="tab-btn"        id="tabBtnOverview" onclick="switchTab('overview')">📊 Annual Overview</button>
+    </div>
+
+    <!-- MONTHLY DETAIL TAB -->
+    <div class="tab-panel active" id="panelDetail">
         <div class="controls">
             <select id="monthSelector" class="month-selector">
-                <option value="january" selected>January</option>
-                <option value="december">December</option>
-                <option value="november">November</option>
-                <option value="october">October</option>
-                <option value="september">September</option>
-                <option value="august">August</option>
-                <option value="july">July</option>
-                <option value="june">June</option>
-                <option value="may">May</option>
+                <option value="january">January</option>
+                <option value="february">February</option>
+                <option value="march" selected>March</option>
                 <option value="april">April</option>
+                <option value="may">May</option>
+                <option value="june">June</option>
+                <option value="july">July</option>
+                <option value="august">August</option>
+                <option value="september">September</option>
+                <option value="october">October</option>
+                <option value="november">November</option>
+                <option value="december">December</option>
             </select>
             <button class="print-button" onclick="window.print()">🖨️ Print A4</button>
         </div>
 
-        <div class="current-month">
-            <h2 id="currentMonthTitle">December Comparison</h2>
-        </div>
+        <div class="current-month"><h2 id="currentMonthTitle">March Comparison</h2></div>
 
         <div class="year-section">
-            <h3 class="year-title" id="yearTopTitle">December 2025</h3>
-
+            <h3 class="year-title" id="yearTopTitle">March 2026</h3>
             <div class="charts-grid">
                 <div class="chart-container">
                     <div class="chart-title">Count Distribution</div>
-                    <div class="chart-wrapper">
-                        <canvas id="countChartTop"></canvas>
-                    </div>
+                    <div class="chart-wrapper"><canvas id="countChartTop"></canvas></div>
                 </div>
-
                 <div class="chart-container">
                     <div class="chart-title">Weight Distribution</div>
-                    <div class="chart-wrapper">
-                        <canvas id="weightChartTop"></canvas>
-                    </div>
+                    <div class="chart-wrapper"><canvas id="weightChartTop"></canvas></div>
                 </div>
             </div>
-
-            <div class="stats-container">
-                <div class="stats-grid" id="statsGridTop"></div>
-            </div>
+            <div class="stats-container"><div class="stats-grid" id="statsGridTop"></div></div>
         </div>
 
         <div class="year-section">
-            <h3 class="year-title" id="yearBottomTitle">December 2024</h3>
-
+            <h3 class="year-title" id="yearBottomTitle">March 2025</h3>
             <div class="charts-grid">
                 <div class="chart-container">
                     <div class="chart-title">Count Distribution</div>
-                    <div class="chart-wrapper">
-                        <canvas id="countChartBottom"></canvas>
-                    </div>
+                    <div class="chart-wrapper"><canvas id="countChartBottom"></canvas></div>
                 </div>
-
                 <div class="chart-container">
                     <div class="chart-title">Weight Distribution</div>
-                    <div class="chart-wrapper">
-                        <canvas id="weightChartBottom"></canvas>
-                    </div>
+                    <div class="chart-wrapper"><canvas id="weightChartBottom"></canvas></div>
                 </div>
             </div>
-
-            <div class="stats-container">
-                <div class="stats-grid" id="statsGridBottom"></div>
-            </div>
+            <div class="stats-container"><div class="stats-grid" id="statsGridBottom"></div></div>
         </div>
 
         <div class="analysis-section">
-            <h3 class="analysis-title" id="analysisTitle">December Year-over-Year Analysis</h3>
+            <h3 class="analysis-title" id="analysisTitle">March Year-over-Year Analysis</h3>
             <div id="analysisContent"></div>
         </div>
     </div>
 
-    <script>
-        const monthData = {
-            january: {
-                name: 'January',
-                2026: {
-                    totalCount: 143,
-                    totalWeight: 2306273,
-                    bewerkingCount: 51,
-                    bewerkingWeight: 648550,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2025: {
-                    totalCount: 178,
-                    totalWeight: 2061159,
-                    bewerkingCount: 73,
-                    bewerkingWeight: 627398,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            december: {
-                name: 'December',
-                2025: {
-                    totalCount: 99,
-                    totalWeight: 869628,
-                    bewerkingCount: 43,
-                    bewerkingWeight: 270390,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 110,
-                    totalWeight: 1119317,
-                    bewerkingCount: 39,
-                    bewerkingWeight: 281777,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            november: {
-                name: 'November',
-                2025: {
-                    totalCount: 135,
-                    totalWeight: 1760161,
-                    bewerkingCount: 47,
-                    bewerkingWeight: 395059,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 145,
-                    totalWeight: 1913793,
-                    bewerkingCount: 38,
-                    bewerkingWeight: 411509,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            october: {
-                name: 'October',
-                2025: {
-                    totalCount: 194,
-                    totalWeight: 2849823,
-                    bewerkingCount: 70,
-                    bewerkingWeight: 1047257,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 179,
-                    totalWeight: 2126917,
-                    bewerkingCount: 72,
-                    bewerkingWeight: 791963,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            september: {
-                name: 'September',
-                2025: {
-                    totalCount: 176,
-                    totalWeight: 2454907,
-                    bewerkingCount: 60,
-                    bewerkingWeight: 640598,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 172,
-                    totalWeight: 1657041,
-                    bewerkingCount: 67,
-                    bewerkingWeight: 436158,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            august: {
-                name: 'August',
-                2025: {
-                    totalCount: 117,
-                    totalWeight: 1436095,
-                    bewerkingCount: 38,
-                    bewerkingWeight: 238877,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 99,
-                    totalWeight: 1265074,
-                    bewerkingCount: 21,
-                    bewerkingWeight: 184206,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            july: {
-                name: 'July',
-                2025: {
-                    totalCount: 159,
-                    totalWeight: 1923068,
-                    bewerkingCount: 57,
-                    bewerkingWeight: 561772,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 135,
-                    totalWeight: 2126580,
-                    bewerkingCount: 47,
-                    bewerkingWeight: 459593,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            june: {
-                name: 'June',
-                2025: {
-                    totalCount: 195,
-                    totalWeight: 1889608,
-                    bewerkingCount: 87,
-                    bewerkingWeight: 555420,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 150,
-                    totalWeight: 1738028,
-                    bewerkingCount: 37,
-                    bewerkingWeight: 373680,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            may: {
-                name: 'May',
-                2025: {
-                    totalCount: 154,
-                    totalWeight: 1830837,
-                    bewerkingCount: 47,
-                    bewerkingWeight: 388645,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 200,
-                    totalWeight: 1489000,
-                    bewerkingCount: 60,
-                    bewerkingWeight: 582410,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            },
-            april: {
-                name: 'April',
-                2025: {
-                    totalCount: 191,
-                    totalWeight: 2969823,
-                    bewerkingCount: 73,
-                    bewerkingWeight: 1134472,
-                    colors: ['#3498db', '#e74c3c']
-                },
-                2024: {
-                    totalCount: 173,
-                    totalWeight: 2029616,
-                    bewerkingCount: 68,
-                    bewerkingWeight: 797639,
-                    colors: ['#27ae60', '#f39c12']
-                }
-            }
-        };
+    <!-- ANNUAL OVERVIEW TAB -->
+    <div class="tab-panel" id="panelOverview">
 
-        let charts = {};
+        <!-- Q1 bar + trend charts -->
+        <div class="overview-section-title">Q1 Comparison — 2025 vs 2026</div>
+        <div class="charts-grid" style="margin-bottom:30px;">
+            <div class="chart-container">
+                <div class="chart-title">Total Orders</div>
+                <div class="chart-wrapper-tall"><canvas id="barTotalOrders"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Total Weight (kg)</div>
+                <div class="chart-wrapper-tall"><canvas id="barTotalWeight"></canvas></div>
+            </div>
+        </div>
+        <div class="charts-grid" style="margin-bottom:40px;">
+            <div class="chart-container">
+                <div class="chart-title">Orders with Bewerking</div>
+                <div class="chart-wrapper-tall"><canvas id="barBewOrders"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Weight with Bewerking (kg)</div>
+                <div class="chart-wrapper-tall"><canvas id="barBewWeight"></canvas></div>
+            </div>
+        </div>
 
-        const chartOptions = {
+        <!-- Year summary cards -->
+        <div class="overview-section-title">Period Totals</div>
+        <div class="year-cards" style="margin-bottom:40px; grid-template-columns: repeat(2,1fr);">
+            <div class="year-card year-card-2025">
+                <div class="year-card-header">2025</div>
+                <div class="year-card-period">Jan – Mar (Q1 YTD)</div>
+                <div class="year-card-metric"><span class="year-card-metric-label">Total Orders</span><span class="year-card-metric-value">522</span></div>
+                <div class="year-card-metric"><span class="year-card-metric-label">Total Weight</span><span class="year-card-metric-value">7,211,702 kg</span></div>
+                <div class="year-card-metric"><span class="year-card-metric-label">With Bewerking</span><span class="year-card-metric-value">199 orders</span></div>
+                <div class="year-card-metric"><span class="year-card-metric-label">Bewerking Weight</span><span class="year-card-metric-value">1,774,785 kg</span></div>
+            </div>
+            <div class="year-card year-card-2026">
+                <div class="year-card-header">2026</div>
+                <div class="year-card-period">Jan – Mar (Q1 YTD)</div>
+                <div class="year-card-metric"><span class="year-card-metric-label">Total Orders</span><span class="year-card-metric-value">539</span></div>
+                <div class="year-card-metric"><span class="year-card-metric-label">Total Weight</span><span class="year-card-metric-value">7,042,295 kg</span></div>
+                <div class="year-card-metric"><span class="year-card-metric-label">With Bewerking</span><span class="year-card-metric-value">197 orders</span></div>
+                <div class="year-card-metric"><span class="year-card-metric-label">Bewerking Weight</span><span class="year-card-metric-value">1,586,019 kg</span></div>
+            </div>
+        </div>
+
+        <!-- Combined totals charts -->
+        <div class="overview-section-title">Q1 Combined Totals — 2025 vs 2026</div>
+        <div class="charts-grid" style="margin-bottom:40px;">
+            <div class="chart-container">
+                <div class="chart-title">Total Orders &amp; Bewerking Orders</div>
+                <div class="chart-wrapper-tall"><canvas id="totalOrdersCompare"></canvas></div>
+            </div>
+            <div class="chart-container">
+                <div class="chart-title">Total Weight &amp; Bewerking Weight (kg)</div>
+                <div class="chart-wrapper-tall"><canvas id="totalWeightCompare"></canvas></div>
+            </div>
+        </div>
+
+        <!-- Simple breakdown tables -->
+        <div class="overview-section-title">Month-by-Month Breakdown</div>
+        <div class="simple-tables-grid">
+            <div class="simple-table-wrap">
+                <div class="simple-table-title">Total Orders</div>
+                <table class="simple-table" id="tableOrders"></table>
+            </div>
+            <div class="simple-table-wrap">
+                <div class="simple-table-title">Total Weight (kg)</div>
+                <table class="simple-table" id="tableWeight"></table>
+            </div>
+            <div class="simple-table-wrap">
+                <div class="simple-table-title">Orders with Bewerking</div>
+                <table class="simple-table" id="tableBewOrders"></table>
+            </div>
+            <div class="simple-table-wrap">
+                <div class="simple-table-title">Weight with Bewerking (kg)</div>
+                <table class="simple-table" id="tableBewWeight"></table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// ── Data ─────────────────────────────────────────────────────────────────────
+const monthData = {
+    january:   { name:'January',
+        2026:{totalCount:143, totalWeight:2306273, bewerkingCount:51, bewerkingWeight:648550,  colors:['#3498db','#e74c3c']},
+        2025:{totalCount:178, totalWeight:2061159, bewerkingCount:73, bewerkingWeight:627398,  colors:['#27ae60','#f39c12']} },
+    february:  { name:'February',
+        2026:{totalCount:182, totalWeight:1998242, bewerkingCount:65, bewerkingWeight:345464,  colors:['#3498db','#e74c3c']},
+        2025:{totalCount:168, totalWeight:2975704, bewerkingCount:57, bewerkingWeight:334259,  colors:['#27ae60','#f39c12']} },
+    march:     { name:'March',
+        2026:{totalCount:214, totalWeight:2737780, bewerkingCount:81, bewerkingWeight:592005,  colors:['#3498db','#e74c3c']},
+        2025:{totalCount:176, totalWeight:2174839, bewerkingCount:69, bewerkingWeight:813128,  colors:['#27ae60','#f39c12']} },
+    april:     { name:'April',
+        2025:{totalCount:191, totalWeight:2969823, bewerkingCount:73, bewerkingWeight:1134472, colors:['#3498db','#e74c3c']},
+        2024:{totalCount:173, totalWeight:2029616, bewerkingCount:68, bewerkingWeight:797639,  colors:['#27ae60','#f39c12']} },
+    may:       { name:'May',
+        2025:{totalCount:154, totalWeight:1830837, bewerkingCount:47, bewerkingWeight:388645,  colors:['#3498db','#e74c3c']},
+        2024:{totalCount:200, totalWeight:1489000, bewerkingCount:60, bewerkingWeight:582410,  colors:['#27ae60','#f39c12']} },
+    june:      { name:'June',
+        2025:{totalCount:195, totalWeight:1889608, bewerkingCount:87, bewerkingWeight:555420,  colors:['#3498db','#e74c3c']},
+        2024:{totalCount:150, totalWeight:1738028, bewerkingCount:37, bewerkingWeight:373680,  colors:['#27ae60','#f39c12']} },
+    july:      { name:'July',
+        2025:{totalCount:159, totalWeight:1923068, bewerkingCount:57, bewerkingWeight:561772,  colors:['#3498db','#e74c3c']},
+        2024:{totalCount:135, totalWeight:2126580, bewerkingCount:47, bewerkingWeight:459593,  colors:['#27ae60','#f39c12']} },
+    august:    { name:'August',
+        2025:{totalCount:117, totalWeight:1436095, bewerkingCount:38, bewerkingWeight:238877,  colors:['#3498db','#e74c3c']},
+        2024:{totalCount:99,  totalWeight:1265074, bewerkingCount:21, bewerkingWeight:184206,  colors:['#27ae60','#f39c12']} },
+    september: { name:'September',
+        2025:{totalCount:176, totalWeight:2454907, bewerkingCount:60, bewerkingWeight:640598,  colors:['#3498db','#e74c3c']},
+        2024:{totalCount:172, totalWeight:1657041, bewerkingCount:67, bewerkingWeight:436158,  colors:['#27ae60','#f39c12']} },
+    october:   { name:'October',
+        2025:{totalCount:194, totalWeight:2849823, bewerkingCount:70, bewerkingWeight:1047257, colors:['#3498db','#e74c3c']},
+        2024:{totalCount:179, totalWeight:2126917, bewerkingCount:72, bewerkingWeight:791963,  colors:['#27ae60','#f39c12']} },
+    november:  { name:'November',
+        2025:{totalCount:135, totalWeight:1760161, bewerkingCount:47, bewerkingWeight:395059,  colors:['#3498db','#e74c3c']},
+        2024:{totalCount:145, totalWeight:1913793, bewerkingCount:38, bewerkingWeight:411509,  colors:['#27ae60','#f39c12']} },
+    december:  { name:'December',
+        2025:{totalCount:99,  totalWeight:869628,  bewerkingCount:43, bewerkingWeight:270390,  colors:['#3498db','#e74c3c']},
+        2024:{totalCount:110, totalWeight:1119317, bewerkingCount:39, bewerkingWeight:281777,  colors:['#27ae60','#f39c12']} }
+};
+
+const Q1_MONTHS   = ['january','february','march'];
+const ALL_MONTHS  = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+const SHORT_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+let overviewBuilt = false;
+function switchTab(tab) {
+    ['detail','overview'].forEach(t => {
+        const key = t.charAt(0).toUpperCase() + t.slice(1);
+        document.getElementById('panel' + key).classList.toggle('active', t === tab);
+        document.getElementById('tabBtn' + key).classList.toggle('active', t === tab);
+    });
+    if (tab === 'overview' && !overviewBuilt) {
+        buildOverviewCharts();
+        overviewBuilt = true;
+    }
+}
+
+// ── Chart registry ────────────────────────────────────────────────────────────
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+// ── Pie charts ────────────────────────────────────────────────────────────────
+const pieOptions = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+        legend: { position:'bottom', labels:{ padding:20, font:{size:12} } },
+        tooltip: { callbacks: { label(ctx) {
+            const v = ctx.parsed, total = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            const pct = ((v/total)*100).toFixed(1);
+            const id = ctx.chart.canvas.id;
+            return (id.includes('weight')||id.includes('Weight'))
+                ? `${ctx.label}: ${v.toLocaleString()} kg (${pct}%)`
+                : `${ctx.label}: ${v.toLocaleString()} (${pct}%)`;
+        }}}
+    }
+};
+
+function createPieChart(canvasId, data, isWeight=false) {
+    destroyChart(canvasId);
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    const noBew = isWeight ? data.totalWeight - data.bewerkingWeight : data.totalCount - data.bewerkingCount;
+    charts[canvasId] = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['With Bewerking','Without Bewerking'],
+            datasets: [{ data: isWeight ? [data.bewerkingWeight, noBew] : [data.bewerkingCount, noBew],
+                backgroundColor: data.colors,
+                hoverBackgroundColor: data.colors.map(c =>
+                    ({'#3498db':'#2980b9','#e74c3c':'#c0392b','#27ae60':'#229954','#f39c12':'#e67e22'}[c]||c)),
+                borderWidth:3, borderColor:'#fff' }]
+        },
+        options: pieOptions
+    });
+}
+
+// ── Bar + trend line charts (overview) ────────────────────────────────────────
+function buildBarTrendChart(canvasId, field, isWeight=false) {
+    destroyChart(canvasId);
+    const ctx = document.getElementById(canvasId).getContext('2d');
+
+    const labels  = Q1_MONTHS.map(m => monthData[m].name);
+    const vals25  = Q1_MONTHS.map(m => monthData[m][2025][field]);
+    const vals26  = Q1_MONTHS.map(m => monthData[m][2026][field]);
+
+    const fmt = v => isWeight ? `${v.toLocaleString()} kg` : v.toLocaleString();
+
+    charts[canvasId] = new Chart(ctx, {
+        data: {
+            labels,
+            datasets: [
+                // Bars
+                {
+                    type: 'bar',
+                    label: '2025',
+                    data: vals25,
+                    backgroundColor: 'rgba(231,76,60,0.65)',
+                    borderColor: '#e74c3c',
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    order: 2
+                },
+                {
+                    type: 'bar',
+                    label: '2026',
+                    data: vals26,
+                    backgroundColor: 'rgba(52,152,219,0.65)',
+                    borderColor: '#3498db',
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    order: 2
+                },
+                // Trend lines
+                {
+                    type: 'line',
+                    label: '2025 trend',
+                    data: vals25,
+                    borderColor: '#c0392b',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2.5,
+                    borderDash: [5, 4],
+                    pointBackgroundColor: '#c0392b',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.35,
+                    order: 1
+                },
+                {
+                    type: 'line',
+                    label: '2026 trend',
+                    data: vals26,
+                    borderColor: '#1a5276',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2.5,
+                    borderDash: [5, 4],
+                    pointBackgroundColor: '#1a5276',
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    tension: 0.35,
+                    order: 1
+                }
+            ]
+        },
+        options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: 'bottom',
                     labels: {
-                        padding: 20,
-                        font: { size: 12 }
+                        padding: 14,
+                        font: { size: 12 },
+                        filter: item => !item.text.includes('trend')
                     }
                 },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
-                            const label = context.label || '';
-                            const value = context.parsed;
-                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                            const percentage = ((value / total) * 100).toFixed(1);
-
-                            const canvasId = context.chart.canvas.id;
-                            if (canvasId.includes('weight')) {
-                                return `${label}: ${value.toLocaleString()} kg (${percentage}%)`;
-                            }
-                            return `${label}: ${value.toLocaleString()} (${percentage}%)`;
+                        label(ctx) {
+                            if (ctx.dataset.label.includes('trend')) return null;
+                            return `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`;
                         }
                     }
                 }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.05)' },
+                    ticks: { callback: v => isWeight ? (v >= 1000000 ? (v/1000000).toFixed(1)+'M' : v.toLocaleString()) : v }
+                }
             }
-        };
+        }
+    });
+}
 
-        function createChart(canvasId, data, isWeight = false) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (charts[canvasId]) {
-                charts[canvasId].destroy();
+// ── Simple breakdown tables ───────────────────────────────────────────────────
+function buildSimpleTable(tableId, field, isWeight=false) {
+    const fmt = v => v === null ? '<span class="dash">—</span>' : (isWeight ? v.toLocaleString() : v);
+    let t24=0, t25=0, t26=0;
+    let rows = ALL_MONTHS.map(m => {
+        const v24 = monthData[m][2024] ? monthData[m][2024][field] : null;
+        const v25 = monthData[m][2025] ? monthData[m][2025][field] : null;
+        const v26 = monthData[m][2026] ? monthData[m][2026][field] : null;
+        if (v24 !== null) t24 += v24;
+        if (v25 !== null) t25 += v25;
+        if (v26 !== null) t26 += v26;
+        return `<tr>
+            <td>${monthData[m].name}</td>
+            <td class="col-2024">${fmt(v24)}</td>
+            <td class="col-2025">${fmt(v25)}</td>
+            <td class="col-2026">${fmt(v26)}</td>
+        </tr>`;
+    }).join('');
+    rows += `<tr class="total-row">
+        <td>Total</td>
+        <td class="col-2024">${isWeight ? t24.toLocaleString() : t24}</td>
+        <td class="col-2025">${isWeight ? t25.toLocaleString() : t25}</td>
+        <td class="col-2026">${isWeight ? t26.toLocaleString() : t26}</td>
+    </tr>`;
+    document.getElementById(tableId).innerHTML = `
+        <thead><tr>
+            <th>Month</th>
+            <th style="color:#d68910;">2024</th>
+            <th style="color:#c0392b;">2025</th>
+            <th style="color:#1a6fa8;">2026</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>`;
+}
+
+// ── Monthly detail ────────────────────────────────────────────────────────────
+function updateStats(gridId, data) {
+    const noBewCount  = data.totalCount  - data.bewerkingCount;
+    const noBewWeight = data.totalWeight - data.bewerkingWeight;
+    document.getElementById(gridId).innerHTML = `
+        <div class="stat-item"><div class="stat-value">${data.totalCount}</div><div class="stat-label">Total Orders</div></div>
+        <div class="stat-item"><div class="stat-value">${data.totalWeight.toLocaleString()}</div><div class="stat-label">Total Weight (kg)</div></div>
+        <div class="stat-item"><div class="stat-value">${data.bewerkingCount}</div><div class="stat-label">Orders with Bewerking</div></div>
+        <div class="stat-item"><div class="stat-value">${noBewCount}</div><div class="stat-label">Orders without Bewerking</div></div>
+        <div class="stat-item"><div class="stat-value">${data.bewerkingWeight.toLocaleString()}</div><div class="stat-label">Weight with Bewerking (kg)</div></div>
+        <div class="stat-item"><div class="stat-value">${noBewWeight.toLocaleString()}</div><div class="stat-label">Weight without Bewerking (kg)</div></div>`;
+}
+
+function getYearKeys(monthObj) {
+    return Object.keys(monthObj).filter(k=>/^\d{4}$/.test(k)).map(Number).sort((a,b)=>b-a);
+}
+
+function generateAnalysis(monthObj, yTop, yBot) {
+    const dT = monthObj[yTop], dB = monthObj[yBot];
+    const oC = dT.totalCount    - dB.totalCount;
+    const oW = dT.totalWeight   - dB.totalWeight;
+    const bC = dT.bewerkingCount  - dB.bewerkingCount;
+    const bW = dT.bewerkingWeight - dB.bewerkingWeight;
+    const pct = (v, base) => ((v/base)*100).toFixed(1);
+    const col = v => v>=0 ? '#27ae60' : '#e74c3c';
+    const sgn = v => v>=0 ? '+' : '';
+    return `<div class="analysis-grid">
+        <div class="analysis-item" style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-left:5px solid #6c757d;">
+            <h4 style="color:#495057;">📊 CHANGE SUMMARY (${yBot} → ${yTop})</h4>
+            <ul>
+                <li style="color:${col(oC)};"><strong>Total Orders:</strong> ${sgn(oC)}${oC} (${sgn(pct(oC,dB.totalCount))}${pct(oC,dB.totalCount)}%)</li>
+                <li style="color:${col(oW)};"><strong>Total Weight:</strong> ${sgn(oW)}${oW.toLocaleString()} kg (${sgn(pct(oW,dB.totalWeight))}${pct(oW,dB.totalWeight)}%)</li>
+                <li style="color:${col(bC)};"><strong>Orders with Bewerking:</strong> ${sgn(bC)}${bC} (${sgn(pct(bC,dB.bewerkingCount))}${pct(bC,dB.bewerkingCount)}%)</li>
+                <li style="color:${col(bW)};"><strong>Weight with Bewerking:</strong> ${sgn(bW)}${bW.toLocaleString()} kg (${sgn(pct(bW,dB.bewerkingWeight))}${pct(bW,dB.bewerkingWeight)}%)</li>
+            </ul>
+        </div>
+        <div class="analysis-item" style="background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-left:5px solid #6c757d;padding:25px;border-radius:12px;">
+            <h4 style="color:#495057;margin:0 0 15px 0;font-size:1.3em;">💡 KEY INSIGHTS</h4>
+            <div style="color:#2c3e50;line-height:1.6;">
+                <p style="margin:0 0 10px 0;">• <strong>Processing Activity:</strong> Bewerking orders changed from ${dB.bewerkingCount} to ${dT.bewerkingCount}.</p>
+                <p style="margin:0 0 10px 0;">• <strong>Overall Volume:</strong> Orders changed from ${dB.totalCount} to ${dT.totalCount} and weight from ${dB.totalWeight.toLocaleString()} kg to ${dT.totalWeight.toLocaleString()} kg.</p>
+                <p style="margin:0;">• <strong>Bewerking Weight:</strong> ${dB.bewerkingWeight.toLocaleString()} kg in ${yBot} vs ${dT.bewerkingWeight.toLocaleString()} kg in ${yTop}.</p>
+            </div>
+        </div>
+    </div>`;
+}
+
+function updateMonth(monthKey) {
+    const data = monthData[monthKey];
+    const [yTop, yBot] = getYearKeys(data);
+    if (!yTop || !yBot) return;
+
+    document.getElementById('currentMonthTitle').textContent = `${data.name} Comparison`;
+    document.getElementById('yearTopTitle').textContent      = `${data.name} ${yTop}`;
+    document.getElementById('yearBottomTitle').textContent   = `${data.name} ${yBot}`;
+    document.getElementById('analysisTitle').textContent     = `${data.name} Year-over-Year Analysis`;
+
+    createPieChart('countChartTop',    data[yTop]);
+    createPieChart('weightChartTop',   data[yTop], true);
+    createPieChart('countChartBottom', data[yBot]);
+    createPieChart('weightChartBottom',data[yBot], true);
+    updateStats('statsGridTop',    data[yTop]);
+    updateStats('statsGridBottom', data[yBot]);
+    document.getElementById('analysisContent').innerHTML = generateAnalysis(data, yTop, yBot);
+}
+
+// ── Combined totals comparison chart ─────────────────────────────────────────
+function buildTotalsCompareChart(canvasId, labels, vals25, vals26, isWeight=false) {
+    destroyChart(canvasId);
+    const ctx = document.getElementById(canvasId).getContext('2d');
+    const fmt = v => isWeight ? `${v.toLocaleString()} kg` : v.toLocaleString();
+    charts[canvasId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                { label:'2025', data:vals25, backgroundColor:'rgba(231,76,60,0.70)', borderColor:'#e74c3c', borderWidth:2, borderRadius:6 },
+                { label:'2026', data:vals26, backgroundColor:'rgba(52,152,219,0.70)', borderColor:'#3498db', borderWidth:2, borderRadius:6 }
+            ]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { position:'bottom', labels:{ padding:16, font:{size:12} } },
+                tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.parsed.y)}` } }
+            },
+            scales: {
+                x: { grid:{ display:false } },
+                y: { beginAtZero:true, grid:{ color:'rgba(0,0,0,0.05)' },
+                     ticks:{ callback: v => isWeight ? (v>=1000000 ? (v/1000000).toFixed(1)+'M' : v.toLocaleString()) : v } }
             }
-
-            const noBewerkingValue = isWeight
-                ? (data.totalWeight - data.bewerkingWeight)
-                : (data.totalCount - data.bewerkingCount);
-
-            const chartData = isWeight
-                ? [data.bewerkingWeight, noBewerkingValue]
-                : [data.bewerkingCount, noBewerkingValue];
-
-            charts[canvasId] = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['With Bewerking', 'Without Bewerking'],
-                    datasets: [{
-                        data: chartData,
-                        backgroundColor: data.colors,
-                        hoverBackgroundColor: data.colors.map(color => {
-                            return color === '#3498db' ? '#2980b9' :
-                                   color === '#e74c3c' ? '#c0392b' :
-                                   color === '#27ae60' ? '#229954' :
-                                   color === '#f39c12' ? '#e67e22' : color;
-                        }),
-                        borderWidth: 3,
-                        borderColor: '#fff'
-                    }]
-                },
-                options: chartOptions
-            });
         }
+    });
+}
 
-        function updateStats(gridId, data) {
-            const noBewerkingCount = data.totalCount - data.bewerkingCount;
-            const noBewerkingWeight = data.totalWeight - data.bewerkingWeight;
+// ── Overview: built lazily on first tab open ──────────────────────────────────
+function buildOverviewCharts() {
+    buildBarTrendChart('barTotalOrders', 'totalCount',      false);
+    buildBarTrendChart('barTotalWeight', 'totalWeight',     true);
+    buildBarTrendChart('barBewOrders',   'bewerkingCount',  false);
+    buildBarTrendChart('barBewWeight',   'bewerkingWeight', true);
 
-            document.getElementById(gridId).innerHTML = `
-                <div class="stat-item">
-                    <div class="stat-value">${data.totalCount}</div>
-                    <div class="stat-label">Total Orders</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.totalWeight.toLocaleString()}</div>
-                    <div class="stat-label">Total Weight (kg)</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.bewerkingCount}</div>
-                    <div class="stat-label">Orders with Bewerking</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${noBewerkingCount}</div>
-                    <div class="stat-label">Orders without Bewerking</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.bewerkingWeight.toLocaleString()}</div>
-                    <div class="stat-label">Total Weight with Bewerking (kg)</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${noBewerkingWeight.toLocaleString()}</div>
-                    <div class="stat-label">Total Weight without Bewerking (kg)</div>
-                </div>
-            `;
-        }
+    buildTotalsCompareChart('totalOrdersCompare', ['Total Orders','Orders with Bewerking'], [522,199],       [539,197],       false);
+    buildTotalsCompareChart('totalWeightCompare', ['Total Weight','Weight with Bewerking'], [7211702,1774785],[7042295,1586019],true);
 
-        function getYearKeysForMonth(monthObj) {
-            return Object.keys(monthObj)
-                .filter(k => /^\d{4}$/.test(k))
-                .map(k => parseInt(k, 10))
-                .sort((a, b) => b - a);
-        }
+    buildSimpleTable('tableOrders',    'totalCount',      false);
+    buildSimpleTable('tableWeight',    'totalWeight',     true);
+    buildSimpleTable('tableBewOrders', 'bewerkingCount',  false);
+    buildSimpleTable('tableBewWeight', 'bewerkingWeight', true);
+}
 
-        function generateAnalysis(monthObj, yearTop, yearBottom) {
-            const dataTop = monthObj[yearTop];
-            const dataBottom = monthObj[yearBottom];
+// ── Init ──────────────────────────────────────────────────────────────────────
+updateMonth('march');
+document.getElementById('monthSelector').addEventListener('change', e => updateMonth(e.target.value));
 
-            const totalOrdersChange = dataTop.totalCount - dataBottom.totalCount;
-            const totalWeightChange = dataTop.totalWeight - dataBottom.totalWeight;
-            const bewerkingOrdersChange = dataTop.bewerkingCount - dataBottom.bewerkingCount;
-            const bewerkingWeightChange = dataTop.bewerkingWeight - dataBottom.bewerkingWeight;
-
-            const totalOrdersPercent = ((totalOrdersChange / dataBottom.totalCount) * 100).toFixed(1);
-            const totalWeightPercent = ((totalWeightChange / dataBottom.totalWeight) * 100).toFixed(1);
-            const bewerkingOrdersPercent = ((bewerkingOrdersChange / dataBottom.bewerkingCount) * 100).toFixed(1);
-            const bewerkingWeightPercent = ((bewerkingWeightChange / dataBottom.bewerkingWeight) * 100).toFixed(1);
-
-            return `
-                <div class="analysis-grid">
-                    <div class="analysis-item" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-left: 5px solid #6c757d;">
-                        <h4 style="color: #495057;">
-                            📊 CHANGE SUMMARY (${yearBottom} → ${yearTop})
-                        </h4>
-                        <ul>
-                            <li style="color: ${totalOrdersChange >= 0 ? '#27ae60' : '#e74c3c'};">
-                                <strong>Total Orders:</strong>
-                                ${totalOrdersChange >= 0 ? '+' : ''}${totalOrdersChange}
-                                orders (${totalOrdersPercent >= 0 ? '+' : ''}${totalOrdersPercent}%)
-                            </li>
-
-                            <li style="color: ${totalWeightChange >= 0 ? '#27ae60' : '#e74c3c'};">
-                                <strong>Total Weight:</strong>
-                                ${totalWeightChange >= 0 ? '+' : ''}${totalWeightChange.toLocaleString()}
-                                kg (${totalWeightPercent >= 0 ? '+' : ''}${totalWeightPercent}%)
-                            </li>
-
-                            <li style="color: ${bewerkingOrdersChange >= 0 ? '#27ae60' : '#e74c3c'};">
-                                <strong>Orders with Bewerking:</strong>
-                                ${bewerkingOrdersChange >= 0 ? '+' : ''}${bewerkingOrdersChange}
-                                orders (${bewerkingOrdersPercent >= 0 ? '+' : ''}${bewerkingOrdersPercent}%)
-                            </li>
-
-                            <li style="color: ${bewerkingWeightChange >= 0 ? '#27ae60' : '#e74c3c'};">
-                                <strong>Weight with Bewerking:</strong>
-                                ${bewerkingWeightChange >= 0 ? '+' : ''}${bewerkingWeightChange.toLocaleString()}
-                                kg (${bewerkingWeightPercent >= 0 ? '+' : ''}${bewerkingWeightPercent}%)
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="analysis-item" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-left: 5px solid #6c757d; padding: 25px; border-radius: 12px;">
-                        <h4 style="color: #495057; margin: 0 0 15px 0; font-size: 1.3em;">💡 KEY INSIGHTS</h4>
-                        <div style="color: #2c3e50; line-height: 1.6;">
-                            <p style="margin: 0 0 10px 0;">• <strong>Processing Activity:</strong> Orders requiring bewerking changed from ${dataBottom.bewerkingCount} to ${dataTop.bewerkingCount} orders.</p>
-                            <p style="margin: 0 0 10px 0;">• <strong>Overall Volume:</strong> Total orders changed from ${dataBottom.totalCount} to ${dataTop.totalCount} orders and from ${dataBottom.totalWeight.toLocaleString()} kg to ${dataTop.totalWeight.toLocaleString()} kg.</p>
-                            <p style="margin: 0;">• <strong>Weight Distribution:</strong> Bewerking orders represented ${dataBottom.bewerkingWeight.toLocaleString()} kg in ${yearBottom} and ${dataTop.bewerkingWeight.toLocaleString()} kg in ${yearTop}.</p>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function updateMonth(monthKey) {
-            const data = monthData[monthKey];
-            const monthName = data.name;
-
-            const yearKeys = getYearKeysForMonth(data);
-            const yearTop = yearKeys[0];
-            const yearBottom = yearKeys[1];
-
-            if (!yearTop || !yearBottom) {
-                document.getElementById('analysisContent').innerHTML =
-                    `<div style="padding: 10px; color: #c0392b;">Not enough year data for ${monthName}. Please provide 2 years.</div>`;
-                return;
-            }
-
-            document.getElementById('currentMonthTitle').textContent = `${monthName} Comparison`;
-            document.getElementById('yearTopTitle').textContent = `${monthName} ${yearTop}`;
-            document.getElementById('yearBottomTitle').textContent = `${monthName} ${yearBottom}`;
-            document.getElementById('analysisTitle').textContent = `${monthName} Year-over-Year Analysis`;
-
-            createChart('countChartTop', data[yearTop]);
-            createChart('weightChartTop', data[yearTop], true);
-            createChart('countChartBottom', data[yearBottom]);
-            createChart('weightChartBottom', data[yearBottom], true);
-
-            updateStats('statsGridTop', data[yearTop]);
-            updateStats('statsGridBottom', data[yearBottom]);
-
-            document.getElementById('analysisContent').innerHTML = generateAnalysis(data, yearTop, yearBottom);
-        }
-
-        updateMonth('january');
-
-        document.getElementById('monthSelector').addEventListener('change', function(e) {
-            updateMonth(e.target.value);
-        });
-    </script>
+</script>
 </body>
 </html>
