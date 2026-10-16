@@ -218,7 +218,7 @@
     <div class="tab-panel" id="panelOverview">
 
         <!-- H1 bar + trend charts -->
-        <div class="overview-section-title">H1 Comparison: 2025 vs 2026 (Jan-Jun)</div>
+        <div class="overview-section-title">January–September Comparison: 2025 vs 2026</div>
         <div class="charts-grid" style="margin-bottom:30px;">
             <div class="chart-container">
                 <div class="chart-title">Total Orders</div>
@@ -245,7 +245,7 @@
         <div class="year-cards" id="yearCardsH1" style="margin-bottom:40px;"></div>
 
         <!-- Combined totals charts -->
-        <div class="overview-section-title">H1 Combined Totals: 2025 vs 2026 (Jan-Jun)</div>
+        <div class="overview-section-title">January–September Combined Totals: 2025 vs 2026</div>
         <div class="charts-grid" style="margin-bottom:40px;">
             <div class="chart-container">
                 <div class="chart-title">Total Orders &amp; Bewerking Orders</div>
@@ -319,16 +319,19 @@ const monthData = {
     },
     july: {
         name:'July',
+        2026:{totalCount:161, totalWeight:3687763, bewerkingCount:63, bewerkingWeight:583550, colors:['#3498db','#e74c3c']},
         2025:{totalCount:159, totalWeight:1923068, bewerkingCount:57, bewerkingWeight:561772, colors:['#3498db','#e74c3c']},
         2024:{totalCount:135, totalWeight:2126580, bewerkingCount:47, bewerkingWeight:459593, colors:['#27ae60','#f39c12']}
     },
     august: {
         name:'August',
+        2026:{totalCount:101, totalWeight:1418063, bewerkingCount:41, bewerkingWeight:315089, colors:['#3498db','#e74c3c']},
         2025:{totalCount:117, totalWeight:1436095, bewerkingCount:38, bewerkingWeight:238877, colors:['#3498db','#e74c3c']},
         2024:{totalCount:99, totalWeight:1265074, bewerkingCount:21, bewerkingWeight:184206, colors:['#27ae60','#f39c12']}
     },
     september: {
         name:'September',
+        2026:{totalCount:150, totalWeight:1467638, bewerkingCount:60, bewerkingWeight:609774, colors:['#3498db','#e74c3c']},
         2025:{totalCount:176, totalWeight:2454907, bewerkingCount:60, bewerkingWeight:640598, colors:['#3498db','#e74c3c']},
         2024:{totalCount:172, totalWeight:1657041, bewerkingCount:67, bewerkingWeight:436158, colors:['#27ae60','#f39c12']}
     },
@@ -350,6 +353,8 @@ const monthData = {
 };
 
 const H1_MONTHS  = ['january','february','march','april','may','june'];
+const Q3_MONTHS  = ['july','august','september'];
+const YTD_MONTHS = [...H1_MONTHS, ...Q3_MONTHS];
 const ALL_MONTHS = ['january','february','march','april','may','june','july','august','september','october','november','december'];
 const SHORT_LABELS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -411,9 +416,9 @@ function createPieChart(canvasId, data, isWeight=false) {
 function buildBarTrendChart(canvasId, field, isWeight=false) {
     destroyChart(canvasId);
     const ctx = document.getElementById(canvasId).getContext('2d');
-    const labels = H1_MONTHS.map(m => monthData[m].name);
-    const vals25 = H1_MONTHS.map(m => monthData[m][2025][field]);
-    const vals26 = H1_MONTHS.map(m => monthData[m][2026][field]);
+    const labels = YTD_MONTHS.map(m => monthData[m].name);
+    const vals25 = YTD_MONTHS.map(m => monthData[m][2025][field]);
+    const vals26 = YTD_MONTHS.map(m => monthData[m][2026][field]);
     const fmt = v => isWeight ? `${v.toLocaleString()} kg` : v.toLocaleString();
     charts[canvasId] = new Chart(ctx, {
         data: {
@@ -443,7 +448,7 @@ function buildBarTrendChart(canvasId, field, isWeight=false) {
 function buildSimpleTable(tableId, field, isWeight=false) {
     const fmt = v => v === null ? '<span class="dash">&mdash;</span>' : (isWeight ? v.toLocaleString() : v);
     let t24=0, t25=0, t26=0;
-    let h1_25=0, h1_26=0;
+    let h1_25=0, h1_26=0, q3_25=0, q3_26=0, ytd_25=0, ytd_26=0;
     let rows = ALL_MONTHS.map(m => {
         const v24 = monthData[m][2024] ? monthData[m][2024][field] : null;
         const v25 = monthData[m][2025] ? monthData[m][2025][field] : null;
@@ -454,6 +459,14 @@ function buildSimpleTable(tableId, field, isWeight=false) {
         if (H1_MONTHS.includes(m)) {
             if (v25 !== null) h1_25 += v25;
             if (v26 !== null) h1_26 += v26;
+        }
+        if (Q3_MONTHS.includes(m)) {
+            if (v25 !== null) q3_25 += v25;
+            if (v26 !== null) q3_26 += v26;
+        }
+        if (YTD_MONTHS.includes(m)) {
+            if (v25 !== null) ytd_25 += v25;
+            if (v26 !== null) ytd_26 += v26;
         }
         return `<tr>
             <td>${monthData[m].name}</td>
@@ -467,6 +480,18 @@ function buildSimpleTable(tableId, field, isWeight=false) {
         <td class="col-2024"><span class="dash">&mdash;</span></td>
         <td class="col-2025">${isWeight ? h1_25.toLocaleString() : h1_25}</td>
         <td class="col-2026">${isWeight ? h1_26.toLocaleString() : h1_26}</td>
+    </tr>`;
+    rows += `<tr class="h1-row">
+        <td>Q3 (Jul-Sep)</td>
+        <td class="col-2024"><span class="dash">&mdash;</span></td>
+        <td class="col-2025">${fmt(q3_25)}</td>
+        <td class="col-2026">${fmt(q3_26)}</td>
+    </tr>`;
+    rows += `<tr class="h1-row">
+        <td>Jan-Sep</td>
+        <td class="col-2024"><span class="dash">&mdash;</span></td>
+        <td class="col-2025">${fmt(ytd_25)}</td>
+        <td class="col-2026">${fmt(ytd_26)}</td>
     </tr>`;
     rows += `<tr class="total-row">
         <td>Total</td>
@@ -582,13 +607,13 @@ function buildYearCards() {
     const cls = {2025:'year-card-2025', 2026:'year-card-2026'};
     let html = '';
     years.forEach(y => {
-        const o  = sumYear(y,'totalCount',H1_MONTHS);
-        const w  = sumYear(y,'totalWeight',H1_MONTHS);
-        const bo = sumYear(y,'bewerkingCount',H1_MONTHS);
-        const bw = sumYear(y,'bewerkingWeight',H1_MONTHS);
+        const o  = sumYear(y,'totalCount',YTD_MONTHS);
+        const w  = sumYear(y,'totalWeight',YTD_MONTHS);
+        const bo = sumYear(y,'bewerkingCount',YTD_MONTHS);
+        const bw = sumYear(y,'bewerkingWeight',YTD_MONTHS);
         html += `<div class="year-card ${cls[y]}">
             <div class="year-card-header">${y}</div>
-            <div class="year-card-period">Jan - Jun (H1 YTD)</div>
+            <div class="year-card-period">Jan - Sep (Q3 YTD)</div>
             <div class="year-card-metric"><span class="year-card-metric-label">Total Orders</span><span class="year-card-metric-value">${o.toLocaleString()}</span></div>
             <div class="year-card-metric"><span class="year-card-metric-label">Total Weight</span><span class="year-card-metric-value">${w.toLocaleString()} kg</span></div>
             <div class="year-card-metric"><span class="year-card-metric-label">With Bewerking</span><span class="year-card-metric-value">${bo.toLocaleString()} orders</span></div>
@@ -609,13 +634,13 @@ function buildOverviewCharts() {
 
     buildTotalsCompareChart('totalOrdersCompare',
         ['Total Orders','Orders with Bewerking'],
-        [sumYear(2025,'totalCount',H1_MONTHS), sumYear(2025,'bewerkingCount',H1_MONTHS)],
-        [sumYear(2026,'totalCount',H1_MONTHS), sumYear(2026,'bewerkingCount',H1_MONTHS)],
+        [sumYear(2025,'totalCount',YTD_MONTHS), sumYear(2025,'bewerkingCount',YTD_MONTHS)],
+        [sumYear(2026,'totalCount',YTD_MONTHS), sumYear(2026,'bewerkingCount',YTD_MONTHS)],
         false);
     buildTotalsCompareChart('totalWeightCompare',
         ['Total Weight','Weight with Bewerking'],
-        [sumYear(2025,'totalWeight',H1_MONTHS), sumYear(2025,'bewerkingWeight',H1_MONTHS)],
-        [sumYear(2026,'totalWeight',H1_MONTHS), sumYear(2026,'bewerkingWeight',H1_MONTHS)],
+        [sumYear(2025,'totalWeight',YTD_MONTHS), sumYear(2025,'bewerkingWeight',YTD_MONTHS)],
+        [sumYear(2026,'totalWeight',YTD_MONTHS), sumYear(2026,'bewerkingWeight',YTD_MONTHS)],
         true);
 
     buildSimpleTable('tableOrders',    'totalCount',      false);
@@ -625,7 +650,8 @@ function buildOverviewCharts() {
 }
 
 // -- Init --
-updateMonth('june');
+updateMonth('september');
+document.getElementById('monthSelector').value = 'september';
 document.getElementById('monthSelector').addEventListener('change', e => updateMonth(e.target.value));
 </script>
 </body>
