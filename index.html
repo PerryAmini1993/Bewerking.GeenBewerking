@@ -259,6 +259,7 @@
 
         <!-- Simple breakdown tables -->
         <div class="overview-section-title">Month-by-Month Breakdown</div>
+        <p style="text-align:center;color:#667788;font-size:0.9em;margin:-8px 0 24px;">Period subtotals appear only when every month is available. No mixed-period grand totals.</p>
         <div class="simple-tables-grid">
             <div class="simple-table-wrap">
                 <div class="simple-table-title">Total Orders</div>
@@ -446,62 +447,31 @@ function buildBarTrendChart(canvasId, field, isWeight=false) {
 
 // -- Simple breakdown tables --
 function buildSimpleTable(tableId, field, isWeight=false) {
-    const fmt = v => v === null ? '<span class="dash">&mdash;</span>' : (isWeight ? v.toLocaleString() : v);
-    let t24=0, t25=0, t26=0;
-    let h1_25=0, h1_26=0, q3_25=0, q3_26=0, ytd_25=0, ytd_26=0;
-    let rows = ALL_MONTHS.map(m => {
-        const v24 = monthData[m][2024] ? monthData[m][2024][field] : null;
-        const v25 = monthData[m][2025] ? monthData[m][2025][field] : null;
-        const v26 = monthData[m][2026] ? monthData[m][2026][field] : null;
-        if (v24 !== null) t24 += v24;
-        if (v25 !== null) t25 += v25;
-        if (v26 !== null) t26 += v26;
-        if (H1_MONTHS.includes(m)) {
-            if (v25 !== null) h1_25 += v25;
-            if (v26 !== null) h1_26 += v26;
-        }
-        if (Q3_MONTHS.includes(m)) {
-            if (v25 !== null) q3_25 += v25;
-            if (v26 !== null) q3_26 += v26;
-        }
-        if (YTD_MONTHS.includes(m)) {
-            if (v25 !== null) ytd_25 += v25;
-            if (v26 !== null) ytd_26 += v26;
-        }
-        return `<tr>
-            <td>${monthData[m].name}</td>
-            <td class="col-2024">${fmt(v24)}</td>
-            <td class="col-2025">${fmt(v25)}</td>
-            <td class="col-2026">${fmt(v26)}</td>
-        </tr>`;
-    }).join('');
-    rows += `<tr class="h1-row">
-        <td>H1 (Jan-Jun)</td>
-        <td class="col-2024"><span class="dash">&mdash;</span></td>
-        <td class="col-2025">${isWeight ? h1_25.toLocaleString() : h1_25}</td>
-        <td class="col-2026">${isWeight ? h1_26.toLocaleString() : h1_26}</td>
+    const fmt = v => v === null ? '<span class="dash">&mdash;</span>' : v.toLocaleString();
+    const values = year => ALL_MONTHS.map(m => monthData[m][year] ? monthData[m][year][field] : null);
+    const v24 = values(2024), v25 = values(2025), v26 = values(2026);
+    const sumCompletePeriod = (year, months) => {
+        const vals = months.map(m => monthData[m][year] ? monthData[m][year][field] : null);
+        return vals.every(v => v !== null) ? vals.reduce((sum, v) => sum + v, 0) : null;
+    };
+    const periodRow = (label, months) => `<tr class="h1-row">
+        <td>${label}</td>
+        <td class="col-2024">${fmt(sumCompletePeriod(2024, months))}</td>
+        <td class="col-2025">${fmt(sumCompletePeriod(2025, months))}</td>
+        <td class="col-2026">${fmt(sumCompletePeriod(2026, months))}</td>
     </tr>`;
-    rows += `<tr class="h1-row">
-        <td>Q3 (Jul-Sep)</td>
-        <td class="col-2024"><span class="dash">&mdash;</span></td>
-        <td class="col-2025">${fmt(q3_25)}</td>
-        <td class="col-2026">${fmt(q3_26)}</td>
-    </tr>`;
-    rows += `<tr class="h1-row">
-        <td>Jan-Sep</td>
-        <td class="col-2024"><span class="dash">&mdash;</span></td>
-        <td class="col-2025">${fmt(ytd_25)}</td>
-        <td class="col-2026">${fmt(ytd_26)}</td>
-    </tr>`;
-    rows += `<tr class="total-row">
-        <td>Total</td>
-        <td class="col-2024">${isWeight ? t24.toLocaleString() : t24}</td>
-        <td class="col-2025">${isWeight ? t25.toLocaleString() : t25}</td>
-        <td class="col-2026">${isWeight ? t26.toLocaleString() : t26}</td>
-    </tr>`;
+    let rows = ALL_MONTHS.map((m, i) => `<tr>
+        <td>${monthData[m].name}</td>
+        <td class="col-2024">${fmt(v24[i])}</td>
+        <td class="col-2025">${fmt(v25[i])}</td>
+        <td class="col-2026">${fmt(v26[i])}</td>
+    </tr>`).join('');
+    rows += periodRow('H1 (Jan–Jun)', H1_MONTHS);
+    rows += periodRow('Q3 (Jul–Sep)', Q3_MONTHS);
+    rows += periodRow('Jan–Sep', YTD_MONTHS);
     document.getElementById(tableId).innerHTML = `
         <thead><tr>
-            <th>Month</th>
+            <th>Month / Period</th>
             <th style="color:#d68910;">2024</th>
             <th style="color:#c0392b;">2025</th>
             <th style="color:#1a6fa8;">2026</th>
